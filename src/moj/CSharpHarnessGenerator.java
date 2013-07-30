@@ -172,9 +172,9 @@ public class CSharpHarnessGenerator implements HarnessGenerator {
         String typeName = paramType.getDescriptor(m_lang) + " " + name;
         if (isLong) {
             if (paramType.getDimension() == 0) {
-                contents = ConstantFormatting.formatLongForJava(contents);
+                contents = ConstantFormatting.formatLongForCSharp(contents);
             } else {
-                contents = ConstantFormatting.formatLongArrayForJava(contents);
+                contents = ConstantFormatting.formatLongArrayForCSharp(contents);
             }
         }
 
