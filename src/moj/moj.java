@@ -40,7 +40,6 @@ public class moj {
             if (!pref.getEnableJavaSupport()) return "";
             generator = new JavaHarnessGenerator(problem, lang, pref);
         } else if (lang.getName().equals("C#")) {
-            if (!pref.getEnableJavaSupport()) return "";
             generator = new CSharpHarnessGenerator(problem, lang, pref);
         } else {
             return "";
