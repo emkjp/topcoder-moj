@@ -22,12 +22,12 @@ public class CSharpHarnessGenerator implements HarnessGenerator {
 
     public String generateDefaultMain() {
         return
-                "public static void main(String[] args) {\n" +
-                "\t\tif (args.length == 0) {\n" +
+                "public static void Main(string[] args) {\n" +
+                "\t\tif (args.Length == 0) {\n" +
                 "\t\t\t" + m_problem.getClassName() + "Harness.run_test(-1);\n" + 
                 "\t\t} else {\n" +
-                "\t\t\tfor (int i=0; i<args.length; ++i)\n" +
-                "\t\t\t\t" + m_problem.getClassName() + "Harness.run_test(Integer.valueOf(args[i]));\n" +
+                "\t\t\tfor (int i=0; i<args.Length; ++i)\n" +
+                "\t\t\t\t" + m_problem.getClassName() + "Harness.run_test(Int32.Parse(args[i]));\n" +
                 "\t\t}\n" +
                 "\t}";
     }
@@ -45,7 +45,7 @@ public class CSharpHarnessGenerator implements HarnessGenerator {
 
         code.add("      if (casenum != -1) {");
         code.add("         if (runTestCase(casenum) == -1)");
-        code.add("            System.err.println(\"Illegal input! Test case \" + casenum + \" does not exist.\");");
+        code.add("            System.Console.Error.WriteLine(\"Illegal input! Test case \" + casenum + \" does not exist.\");");
         code.add("         return;");
         code.add("      }");
         code.add("      ");
@@ -61,11 +61,11 @@ public class CSharpHarnessGenerator implements HarnessGenerator {
         code.add("      }");
         code.add("      ");
         code.add("      if (total == 0) {");
-        code.add("         System.err.println(\"No test cases run.\");");
+        code.add("         System.Console.Error.WriteLine(\"No test cases run.\");");
         code.add("      } else if (correct < total) {");
-        code.add("         System.err.println(\"Some cases FAILED (passed \" + correct + \" of \" + total + \").\");");
+        code.add("         System.Console.Error.WriteLine(\"Some cases FAILED (passed \" + correct + \" of \" + total + \").\");");
         code.add("      } else {");
-        code.add("         System.err.println(\"All \" + total + \" tests passed!\");");
+        code.add("         System.Console.Error.WriteLine(\"All \" + total + \" tests passed!\");");
         code.add("      }");
         code.add("   }");
         code.add("   ");
@@ -74,26 +74,26 @@ public class CSharpHarnessGenerator implements HarnessGenerator {
     void generateOutputComparison(ArrayList<String> code) {
         DataType returnType = m_problem.getReturnType();
         if (returnType.getBaseName().equals("double")) {
-            code.add("   static final double MAX_DOUBLE_ERROR = 1E-9;");
-            code.add("   static boolean compareOutput(double expected, double result){ if(Double.isNaN(expected)){ return Double.isNaN(result); }else if(Double.isInfinite(expected)){ if(expected > 0){ return result > 0 && Double.isInfinite(result); }else{ return result < 0 && Double.isInfinite(result); } }else if(Double.isNaN(result) || Double.isInfinite(result)){ return false; }else if(Math.abs(result - expected) < MAX_DOUBLE_ERROR){ return true; }else{ double min = Math.min(expected * (1.0 - MAX_DOUBLE_ERROR), expected * (1.0 + MAX_DOUBLE_ERROR)); double max = Math.max(expected * (1.0 - MAX_DOUBLE_ERROR), expected * (1.0 + MAX_DOUBLE_ERROR)); return result > min && result < max; } }");
-            code.add("   static double relativeError(double expected, double result) { if (Double.isNaN(expected) || Double.isInfinite(expected) || Double.isNaN(result) || Double.isInfinite(result) || expected == 0) return 0; return Math.abs(result-expected) / Math.abs(expected); }");
+            code.add("   const double MAX_DOUBLE_ERROR = 1E-9;");
+            code.add("   static bool compareOutput(double expected, double result){ if(Double.IsNaN(expected)){ return Double.IsNaN(result); }else if(Double.IsInfinity(expected)){ if(expected > 0){ return result > 0 && Double.IsInfinity(result); }else{ return result < 0 && Double.IsInfinity(result); } }else if(Double.IsNaN(result) || Double.IsInfinity(result)){ return false; }else if(Math.Abs(result - expected) < MAX_DOUBLE_ERROR){ return true; }else{ double min = Math.Min(expected * (1.0 - MAX_DOUBLE_ERROR), expected * (1.0 + MAX_DOUBLE_ERROR)); double max = Math.Max(expected * (1.0 - MAX_DOUBLE_ERROR), expected * (1.0 + MAX_DOUBLE_ERROR)); return result > min && result < max; } }");
+            code.add("   static double relativeError(double expected, double result) { if (Double.IsNaN(expected) || Double.IsInfinity(expected) || Double.IsNaN(result) || Double.IsInfinity(result) || expected == 0) return 0; return Math.Abs(result-expected) / Math.Abs(expected); }");
             if (returnType.getDimension() > 0) {
-                code.add("   static boolean compareOutput(double[] expected, double[] result) { if (expected.length != result.length) return false; for (int i=0; i<expected.length; ++i) if (!compareOutput(expected[i], result[i])) return false; return true; }");
-                code.add("   static double relativeError(double[] expected, double[] result) { double ret = 0.0; for (int i=0; i<expected.length; ++i) { ret = Math.max(ret, relativeError(expected[i], result[i])); } return ret; }");
+                code.add("   static bool compareOutput(double[] expected, double[] result) { if (expected.Length != result.Length) return false; for (int i=0; i<expected.Length; ++i) if (!compareOutput(expected[i], result[i])) return false; return true; }");
+                code.add("   static double relativeError(double[] expected, double[] result) { double ret = 0.0; for (int i=0; i<expected.Length; ++i) { ret = Math.Max(ret, relativeError(expected[i], result[i])); } return ret; }");
             }
             code.add("   ");
         } else if (returnType.getBaseName().equals("String")) {
             if (returnType.getDimension() > 0) {
-                code.add("   static boolean compareOutput(String[] expected, String[] result) { if (expected.length != result.length) return false; for (int i=0; i<expected.length; ++i) if (!expected[i].equals(result[i])) return false; return true; }\n");
+                code.add("   static bool compareOutput(String[] expected, String[] result) { if (expected.Length != result.Length) return false; for (int i=0; i<expected.Length; ++i) if (expected[i] != result[i]) return false; return true; }\n");
             } else {
-                code.add("   static boolean compareOutput(String expected, String result) { return expected.equals(result); }");				
+                code.add("   static bool compareOutput(String expected, String result) { return expected == result; }");				
             }
         } else {
             String type = returnType.getBaseName();
             if (returnType.getDimension() > 0) {
-                code.add("   static boolean compareOutput("+type+"[] expected, "+type+"[] result) { if (expected.length != result.length) return false; for (int i=0; i<expected.length; ++i) if (expected[i] != result[i]) return false; return true; }\n");
+                code.add("   static bool compareOutput("+type+"[] expected, "+type+"[] result) { if (expected.Length != result.Length) return false; for (int i=0; i<expected.Length; ++i) if (expected[i] != result[i]) return false; return true; }\n");
             } else {
-                code.add("   static boolean compareOutput("+type+" expected, "+type+" result) { return expected == result; }");				
+                code.add("   static bool compareOutput("+type+" expected, "+type+" result) { return expected == result; }");				
             }
         }
     }
@@ -102,29 +102,29 @@ public class CSharpHarnessGenerator implements HarnessGenerator {
         DataType returnType = m_problem.getReturnType();
 
         Map<String, String> typeFormatMap = new HashMap<String, String>();
-        typeFormatMap.put("int", "%d");
-        typeFormatMap.put("float", "%.10g");
-        typeFormatMap.put("char", "'%c'");
-        typeFormatMap.put("byte", "%d");
-        typeFormatMap.put("short", "%d");
-        typeFormatMap.put("long", "%d");
-        typeFormatMap.put("double", "%.10g");
-        typeFormatMap.put("String", "\\\"%s\\\"");
-        typeFormatMap.put("boolean", "%b");
+        typeFormatMap.put("int", "{0}");
+        typeFormatMap.put("float", "{0:g10}");
+        typeFormatMap.put("char", "'{0}'");
+        typeFormatMap.put("byte", "{0}");
+        typeFormatMap.put("short", "{0}");
+        typeFormatMap.put("long", "{0}");
+        typeFormatMap.put("double", "{0:g10}");
+        typeFormatMap.put("String", "\\\"{0}\\\"");
+        typeFormatMap.put("bool", "{0}");
         String formatString = typeFormatMap.get(returnType.getBaseName());
 
         code.add("   static String formatResult(" + returnType.getDescriptor(m_lang) + " res) {");
         if (returnType.getDimension() > 0) {
             code.add("      String ret = \"\";");
             code.add("      ret += \"{\";");
-            code.add("      for (int i=0; i<res.length; ++i) {");
+            code.add("      for (int i=0; i<res.Length; ++i) {");
             code.add("         if (i > 0) ret += \",\";");
-            code.add("         ret += String.format(\" " + formatString + "\", res[i]);");
+            code.add("         ret += String.Format(\" " + formatString + "\", res[i]);");
             code.add("      }");
             code.add("      ret += \" }\";");
             code.add("      return ret;");
         } else {
-            code.add("      return String.format(\"" + formatString + "\", res);");
+            code.add("      return String.Format(\"" + formatString + "\", res);");
         }
 
         code.add("   }");
@@ -136,26 +136,26 @@ public class CSharpHarnessGenerator implements HarnessGenerator {
         String typeName = returnType.getDescriptor(m_lang);
 
         code.add("   static int verifyCase(int casenum, " + typeName + " expected, " + typeName + " received) { ");
-        code.add("      System.err.print(\"Example \" + casenum + \"... \");");
+        code.add("      System.Console.Error.Write(\"Example \" + casenum + \"... \");");
 
         // Print "PASSED" or "FAILED" based on the result
         if (returnType.getBaseName().equals("double")) {
             code.add("      if (compareOutput(expected, received)) {");
-            code.add("         System.err.print(\"PASSED\");");
+            code.add("         System.Console.Error.Write(\"PASSED\");");
             code.add("         double rerr = relativeError(expected, received);");
-            code.add("         if (rerr > 0) System.err.printf(\" (relative error %g)\", rerr);");
-            code.add("         System.err.println();");
+            code.add("         if (rerr > 0) System.Console.Error.Write(\" (relative error {0:g})\", rerr);");
+            code.add("         System.Console.Error.WriteLine();");
             code.add("         return 1;");
         } else {
             code.add("      if (compareOutput(expected, received)) {");
-            code.add("         System.err.println(\"PASSED\");");
+            code.add("         System.Console.Error.WriteLine(\"PASSED\");");
             code.add("         return 1;");
         }
         code.add("      } else {");
-        code.add("         System.err.println(\"FAILED\");");
+        code.add("         System.Console.Error.WriteLine(\"FAILED\");");
 
-        code.add("         System.err.println(\"    Expected: \" + formatResult(expected)); ");
-        code.add("         System.err.println(\"    Received: \" + formatResult(received)); ");
+        code.add("         System.Console.Error.WriteLine(\"    Expected: \" + formatResult(expected)); ");
+        code.add("         System.Console.Error.WriteLine(\"    Received: \" + formatResult(received)); ");
 
         code.add("         return 0;");
         code.add("      }");
