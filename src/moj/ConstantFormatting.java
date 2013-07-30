@@ -15,6 +15,14 @@ class ConstantFormatting {
 
     public static String formatLongArrayForJava(String str) {
         return formatLongArray(str, "L");
+    }
+
+    public static String formatLongForCSharp(String str) {
+        return formatSingleLong(str, "L");
+    }
+
+    public static String formatLongArrayForCSharp(String str) {
+        return formatLongArray(str, "L");
     } 
 
     private static String formatSingleLong(String str, String suffix) {
