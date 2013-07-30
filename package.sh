@@ -20,6 +20,7 @@ cat README >> deploy/moj_instructions.txt
 echo "Creating zip..."
 target=deploy/moj_$VERSION.zip
 rm -f $target
-zip -j $target deploy/moj.jar deps/CodeProcessor.jar deps/FileEdit.jar deploy/moj_instructions.txt deploy/template.cpp deploy/template.java
+zip -j $target deploy/moj.jar deps/CodeProcessor.jar deps/FileEdit.jar deploy/moj_instructions.txt deploy/template.cpp deploy/template.java deploy/template.cs
+
 
 echo "Done."
