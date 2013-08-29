@@ -135,24 +135,28 @@ public class CSharpHarnessGenerator implements HarnessGenerator {
         DataType returnType = m_problem.getReturnType();
         String typeName = returnType.getDescriptor(m_lang);
 
-        code.add("   static int verifyCase(int casenum, " + typeName + " expected, " + typeName + " received) { ");
+        code.add("   static int verifyCase(int casenum, " + typeName + " expected, " + typeName + " received, double totalMilliseconds) { ");
         code.add("      System.Console.Error.Write(\"Example \" + casenum + \"... \");");
 
+        code.add("      String timeInfo = \"\";");
+        code.add("      if (totalMilliseconds >= 10)");
+        code.add("         timeInfo = String.Format(\"(time {0}s)\", totalMilliseconds / 1000.0);");
+        
         // Print "PASSED" or "FAILED" based on the result
         if (returnType.getBaseName().equals("double")) {
             code.add("      if (compareOutput(expected, received)) {");
-            code.add("         System.Console.Error.Write(\"PASSED\");");
+            code.add("         System.Console.Error.Write(\"PASSED {0}\", timeInfo);");
             code.add("         double rerr = relativeError(expected, received);");
             code.add("         if (rerr > 0) System.Console.Error.Write(\" (relative error {0:g})\", rerr);");
             code.add("         System.Console.Error.WriteLine();");
             code.add("         return 1;");
         } else {
             code.add("      if (compareOutput(expected, received)) {");
-            code.add("         System.Console.Error.WriteLine(\"PASSED\");");
+            code.add("         System.Console.Error.WriteLine(\"PASSED {0}\", timeInfo);");
             code.add("         return 1;");
         }
         code.add("      } else {");
-        code.add("         System.Console.Error.WriteLine(\"FAILED\");");
+        code.add("         System.Console.Error.WriteLine(\"FAILED {0}\", timeInfo);");
 
         code.add("         System.Console.Error.WriteLine(\"    Expected: \" + formatResult(expected)); ");
         code.add("         System.Console.Error.WriteLine(\"    Received: \" + formatResult(received)); ");
@@ -211,18 +215,24 @@ public class CSharpHarnessGenerator implements HarnessGenerator {
 
         code.add("");
 
-        StringBuffer line = new StringBuffer();
-        line.append("         return verifyCase(casenum__, expected__, new " + m_problem.getClassName() + "()." + m_problem.getMethodName() + "(");
-
+        code.add("         DateTime start            = DateTime.Now;");
+        // Generate the function call
+        StringBuffer call = new StringBuffer();
+        call.append(returnType.getDescriptor(m_lang) + " received__");
+        while (call.length() < 25) {
+            call.append(' ');
+        }
+        call.append(" = new " + m_problem.getClassName() + "()." + m_problem.getMethodName() + "(");
         // Generate the function call list
         for (int i = 0; i < inputs.length; ++i) {
-            line.append(paramNames[i]);
+            call.append(paramNames[i]);
             if (i < (inputs.length - 1))
-                line.append(", ");
+                call.append(", ");
         }
-
-        line.append("));");
-        code.add(line.toString());
+        call.append(");");
+        code.add("         " + call);
+        code.add("         DateTime end              = DateTime.Now;");
+        code.add("         return verifyCase(casenum__, expected__, received__, end.Subtract(start).TotalMilliseconds);");
     }
 
     void generateRunTestCase(ArrayList<String> code) {
